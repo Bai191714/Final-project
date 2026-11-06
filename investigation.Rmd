@@ -144,6 +144,30 @@ Rental is higher between 20-40
 Concentrated in low temperature and Spread away in high temperature(It's not necessary to rent bike in a low temperature, and it depends on other factors in high temperature)
 Positive correlation
 
+```{r}
+bike_data %>%
+  drop_na(Rented.Bike.Count, Wind.speed..m.s.) %>%
+  ggplot(mapping = aes(x = Wind.speed..m.s., y = Rented.Bike.Count)) +
+  geom_point(color = "lightblue",
+             alpha = 0.7) +
+  geom_smooth( se = FALSE, method = lm, colour = "black") +
+  labs(x = "Wind Speed (m/s)",
+       y = "Rented Bike Count",
+       title = "Graph of bike rental against wind speed (m/s)")
+
+```
+```{r}
+bike_data %>%
+  mutate(precipitation=Rainfall.mm.+Snowfall..cm.) %>%
+  drop_na(Rented.Bike.Count, precipitation) %>%
+  ggplot(mapping = aes(x = precipitation, y = Rented.Bike.Count)) +
+  geom_point(color = "lightblue",
+             alpha = 0.7) +
+  geom_smooth( se = FALSE, method = lm, colour = "black") +
+  labs(x = "precipitation (mm)",
+       y = "Rented Bike Count",
+       title = "Graph of bike rental against precipitation (mm)")
+```
 
 
 
