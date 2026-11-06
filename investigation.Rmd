@@ -16,19 +16,134 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r load-lib, message = FALSE}
 library(tidyverse)
-# Add any other libraries here
+library(ggplot2)
 
+
+```
+
+```{r}
+bike_data <- read.csv("SeoulBikeData.csv")
+```
+
+
+```{r}
+#Seasons
+bike_data %>%
+  drop_na(Rented.Bike.Count, Seasons) %>%
+  ggplot(aes(x = Seasons, y = Rented.Bike.Count, fill = Seasons)) +
+  geom_violin() +
+  scale_fill_manual(values = c("Autumn" = "gold",
+                               "Spring" = "lightgreen",
+                               "Summer" = "tomato",
+                               "Winter" = "lightblue")) +
+  geom_boxplot(width = 0.1,
+               fill = "pink",
+               color = "purple") +
+  labs(x = "Seasons",
+       y = "Rented Bike Count",
+       title = "Relationship between Rental and Seasons") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+  
+```
+Seasons:
+We can see that the graph of rental and seasons shows a right-skewed distribuion. Winter has the lowest number of rental and summer has the highest (too cold for people to go out?) Number of rental are widely spread out in autumn, spring, summer and highly concentrated in winter. (people have same mindset in winter)
+
+```{r}
+bike_data %>%
+  drop_na(Rented.Bike.Count,Holiday) %>%
+  ggplot(aes(x = Holiday, y = Rented.Bike.Count)) +
+  geom_boxplot(color = "blue",
+               fill = "skyblue") +
+  labs(x = "Holiday",
+       y = "Rented Bike Count",
+       title = "Relaionship between Rental and Seasons") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+Holidays:
+It is indicated that rental is lower in holiday than in none. (people travel away from the city so they are not renting?) There are a lot of outliners on no holiday.
+
+```{r}
+bike_data %>%
+  drop_na(Rented.Bike.Count, Functioning.Day) %>%
+  ggplot(aes(x = Functioning.Day, fill = Functioning.Day)) +
+  scale_fill_manual(values = c("No" = "salmon",
+                               "Yes" = "skyblue")) +
+  geom_bar() +
+  labs(x = "Functioning Day",
+       y = "Bike Renting Day",
+       title = "Relationship between Rental and Functioning Day") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+Functioning Day:
+Yes is much greater than No. 
+
+
+```{r}
+bike_data %>%
+  drop_na(Rented.Bike.Count, Dew.point.temperature.蚓.) %>%
+  ggplot(mapping = aes(x = Dew.point.temperature.蚓., y = Rented.Bike.Count)) +
+  geom_point(color = "#FFB6C1",
+             alpha = 0.5,
+             size = 1) +
+  geom_smooth(method = lm, se = FALSE, colour = "steelblue") +
+  labs(x = "Dew Point",
+       y = "Rented Bike Count",
+       title = "Relationship between Rental and Dew Point") +
+   theme_minimal() +
+  theme(legend.position = "bottom")
+```
 
 
 ```
 
-
-```{r load-data}
-# load your data 
-
-
+Dew Point:
+Rental is higher when dew point is higher. They are widely spread when dew point is high (other factors are influencing?) 
+As there are a lot of zero point exit on unfuntioning day, we should drop them.
+Positive correlation.
 
 
 ```
+```{r}
+bike_data %>%
+  filter(Functioning.Day == "Yes") %>%
+  drop_na(Rented.Bike.Count, Dew.point.temperature.蚓.) %>%
+  ggplot(mapping = aes(x = Dew.point.temperature.蚓., y = Rented.Bike.Count)) +
+  geom_point(color = "#FFB6C1",
+             alpha = 0.5,
+             size = 1) +
+  geom_smooth(method = lm, se = FALSE, colour = "steelblue") +
+  labs(x = "Dew Point",
+       y = "Rented Bike Count",
+       title = "Relationship between Rental and Dew Point") +
+   theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+Actually nothing different, but we will keep the new one.
+
+
+```{r}
+bike_data %>%
+  drop_na(Rented.Bike.Count, Temperature.蚓.) %>%
+  ggplot(mapping = aes(x = Temperature.蚓., y = Rented.Bike.Count)) +
+  geom_point(alpha = 0.5, size = 1, color = "pink") +
+  geom_smooth(method = lm, se = FALSE, colour = "steelblue") +
+  labs(x = "Temperature",
+       y = "Rented Bike Count",
+       title = "Relationship between Rental and Temperature") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+Temperature:
+Rental is higher between 20-40
+Concentrated in low temperature and Spread away in high temperature(It's not necessary to rent bike in a low temperature, and it depends on other factors in high temperature)
+Positive correlation
+
+
 
 
