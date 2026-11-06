@@ -1,6 +1,6 @@
 ---
 title: "IDS investigation worksheet"
-author: "by Team-Name: User1, User2, User3, User4 & User5"
+author: "by Error 404 Phenomonal Formulators: User1, User2, User3 & User4"
 date: "`r Sys.Date()`"
 output: html_document
 ---
@@ -149,7 +149,7 @@ bike_data %>%
   drop_na(Rented.Bike.Count, Wind.speed..m.s.) %>%
   ggplot(mapping = aes(x = Wind.speed..m.s., y = Rented.Bike.Count)) +
   geom_point(color = "lightblue",
-             alpha = 0.7) +
+             alpha = 0.4) +
   geom_smooth( se = FALSE, method = lm, colour = "black") +
   labs(x = "Wind Speed (m/s)",
        y = "Rented Bike Count",
@@ -158,11 +158,12 @@ bike_data %>%
 ```
 ```{r}
 bike_data %>%
-  mutate(precipitation=Rainfall.mm.+Snowfall..cm.) %>%
-  drop_na(Rented.Bike.Count, precipitation) %>%
-  ggplot(mapping = aes(x = precipitation, y = Rented.Bike.Count)) +
+  mutate(precipitation.mm=Rainfall.mm.+Snowfall..cm.*10) %>%
+  filter(Seasons=="Winter") %>%
+  drop_na(Rented.Bike.Count, precipitation.mm) %>%
+  ggplot(mapping = aes(x = precipitation.mm, y = Rented.Bike.Count)) +
   geom_point(color = "lightblue",
-             alpha = 0.7) +
+             alpha = 0.4) +
   geom_smooth( se = FALSE, method = lm, colour = "black") +
   labs(x = "precipitation (mm)",
        y = "Rented Bike Count",
