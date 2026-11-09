@@ -170,5 +170,90 @@ bike_data %>%
        title = "Graph of bike rental against precipitation (mm)")
 ```
 
+## Date Code
+```{r}
 
+SeoulBikeData <- read.csv("SeoulBikeData.csv")
+names(SeoulBikeData)
+
+```
+
+Days: combining days in a year against rent
+```{r}
+
+SeoulBikeData %>%
+  drop_na(Rented.Bike.Count, Date) %>%
+  group_by(Date) %>%
+  summarise(
+    Mean_Bikes_Day = mean(Rented.Bike.Count),
+    .groups = "drop"
+  ) %>%
+  ggplot(aes(x = Date, y = Mean_Bikes_Day)) +
+  geom_col() +
+  labs(
+    x = "Date",
+    y = "Mean Bikes Rented",
+    title = "Mean Bike Rentals by Day")
+
+```
+
+Weekdays: Mean Bike Rentals per Weekday
+```{r}
+
+SeoulBikeData %>%
+  drop_na(Rented.Bike.Count, Date, Seasons) %>%
+  mutate(Day = weekdays(as.Date(Date))) %>%
+  group_by(Day, Seasons) %>%
+  summarise(
+    Mean_Bikes_Day = mean(Rented.Bike.Count),
+    .groups = "drop"
+  ) %>%
+  ggplot(aes(x = Day, y = Mean_Bikes_Day, fill = Seasons)) +
+  geom_col(position = "dodge") +
+  labs(
+    x = "Day of the Week",
+    y = "Mean Bikes Rented",
+    title = "Average Bike Rentals by Day",
+    subtitle = "Compared Across Seasons")
+
+```
+
+Hours:  Hours in a day against rent
+```{r}
+
+SeoulBikeData %>%
+  drop_na(Rented.Bike.Count, Hour) %>%
+  group_by(Hour, Seasons) %>%
+  summarise(Total_Bikes_Hour = sum(Rented.Bike.Count), .groups = "drop") %>%
+  ggplot(aes(x= Hour, y= Total_Bikes_Hour, fill = Seasons)) +
+  geom_col() + 
+  labs (
+    x= "Hour of Day", 
+    y= "Rented Bikes", 
+    subtitle = "Segemented by Season", 
+    title =  "Rented Bikes by Hour of the Day")
+
+```
+
+Months: combining months in a year against rent
+```{r}
+
+SeoulBikeData$Date <- as.Date(SeoulBikeData$Date, format = "%d/%m/%Y")
+
+SeoulBikeData %>%
+  drop_na(Rented.Bike.Count, Date) %>%
+  mutate(Month = floor_date(Date, unit = "month")) %>%
+  group_by(Month) %>%
+  summarise(
+    Mean_Bikes_Month = mean(Rented.Bike.Count),
+    .groups = "drop"
+  ) %>%
+  ggplot(aes(x = Month, y = Mean_Bikes_Month)) +
+  geom_col() +
+  labs(
+    x = "Month",
+    y = "Mean Bikes Rented",
+    title = "Mean Bike Rentals by Month")
+
+```
 
