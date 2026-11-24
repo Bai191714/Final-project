@@ -7,8 +7,6 @@ output: html_document
 
 **Note:** You can use this file as you 'working document' where you can try out various investigation ideas and keep notes about your findings. How you use and structure this file is up to you. It is recommended that you keep notes about what you are investigating and what you find as this will make the process of creating your presentation and report easier. Please note that you _do not_ need to submit this file as part of your group project.
 
-
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -25,6 +23,162 @@ library(knitr)
 bike_data <- read.csv("SeoulBikeData.csv")
 ```
 
+```{r}
+names(bike_data)
+```
+
+**Introducing the Dataset**
+
+**Basic Summary Statistics**
+
+```{r}
+bike_data%>%
+  summarise( 
+          min_rent = min(Rented.Bike.Count),
+          avg_rent = mean(Rented.Bike.Count, na.rm= TRUE),
+          med_rent = median(Rented.Bike.Count),
+          max_rent = max(Rented.Bike.Count),
+          sd_rent = sd(Rented.Bike.Count),
+          iqr_rent = IQR(Rented.Bike.Count),
+          quantile(probs = 0.25, Rented.Bike.Count),
+          quantile(probs = 0.5, Rented.Bike.Count),
+          quantile(probs = 0.75, Rented.Bike.Count))
+```
+
+HISTOGRAM OF BIKE RENTALS
+
+```{r}
+ggplot(data = bike_data, 
+       mapping = aes(x = Rented.Bike.Count)) +
+  geom_histogram()
+```
+
+Positively Skewed
+8760 entries
+14 variables
+mean = 704.602
+median = 504.5
+IQR = 874.25
+What does this mean??
+
+
+**Exploring Temporal Variables**
+
+FUNCTIONING DAYS
+
+```{r}
+bike_data %>%
+  count(Functioning.Day)
+
+bike_data %>%
+  group_by(Functioning.Day)%>%
+  summarise(mean_func = mean(Rented.Bike.Count, na.rm = TRUE))
+
+bike_data %>%
+  drop_na(Rented.Bike.Count, Functioning.Day) %>%
+  ggplot(aes(x = Functioning.Day, fill = Functioning.Day)) +
+  scale_fill_manual(values = c("No" = "salmon",
+                               "Yes" = "skyblue")) +
+  geom_bar() +
+  labs(x = "Functioning Day",
+       y = "Bike Renting Day",
+       title = "Relationship between Rental and Functioning Day") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+From the data it can be determined that there were 295 instances of non functioning hours of the Seoul Bike Rental Service between 2017 and 2018, suggesting 12.3 days of the year the bikes were out of commission. This is approximately 3.36% of the year where bikes were unavailable to be rented.
+
+This causes a significant drop in mean bike rentals inclusive and exclusive of the non-functioning days, where bike rental is 0. On functioning days only, the mean is 729.157 rentals per hour, however throughout the whole year the rental rate is 704.602 rentals per hour.
+
+
+**Exploring Further**
+Testing for significance
+
+TESTING 
+
+H0: μ = 729.157
+H1: μ < 729.157
+
+Bootstrapping:
+  
+99% significance z= 
+
+x̄ =704.602 
+
+sd = 645.998
+
+As we have found that this causes a significant chnage to the mean we will continue by discarding all data points of non-functioning days to remove this confounding variable from other variable investigations. 
+
+
+
+
+
+HOLIDAYS 
+
+```{r}
+bike_data%>%
+  group_by(Holiday)%>%
+  summarise( 
+          min_rent = min(Rented.Bike.Count),
+          avg_rent = mean(Rented.Bike.Count, na.rm= TRUE),
+          med_rent = median(Rented.Bike.Count),
+          max_rent = max(Rented.Bike.Count),
+          sd_rent = sd(Rented.Bike.Count),
+          quantile(probs = 0.25, Rented.Bike.Count),
+          quantile(probs = 0.5, Rented.Bike.Count),
+          quantile(probs = 0.75, Rented.Bike.Count))
+```
+From the data we can see on average that the number of bike rentals decrease during holidays from a mean of 715.2280 to 499.7569, this is significant as it suggests that the majority of rentals perhaps are related to comuttors travel to and from work/ school, further suggesting that rentals mainly occur among the working-aged demographic.
+
+This significant higher rental rates on no holidays are significant on all of the statistics. 
+
+This perhaps suggest the Seoul government should campaign to increase bike rentals on holiday days more. 
+
+```{r}
+bike_data %>%
+  drop_na(Rented.Bike.Count,Holiday) %>%
+  ggplot(aes(x = Holiday, y = Rented.Bike.Count)) +
+  geom_boxplot(color = "blue",
+               fill = "skyblue") +
+  labs(x = "Holiday",
+       y = "Rented Bike Count",
+       title = "Relaionship between Rental and Holidays") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+However from the graph, it also becomes apparent that there are many more outliers on non-holiday says. This could suggest bike rentals vary perhaps more greatly on these days as suggested by the greater standard deviation of 646.8791 to 570.7728.
+
+Peraps in future it may be prudent to explore the clientel of bike renters in Seoul or even the concentration of rentals around Soeul to ensure bikes are available in the most relavant locations. 
+
+
+**Exploring Further**
+(perhaps dp a liogistic regression model??? rain or temp)
+
+
+
+
+
+SEASONS
+
+```{r}
+bike_data%>%
+  group_by(Seasons)%>%
+  summarise( 
+          min_rent = min(Rented.Bike.Count),
+          avg_rent = mean(Rented.Bike.Count, na.rm= TRUE),
+          med_rent = median(Rented.Bike.Count),
+          max_rent = max(Rented.Bike.Count),
+          sd_rent = sd(Rented.Bike.Count),
+          quantile(probs = 0.25, Rented.Bike.Count),
+          quantile(probs = 0.5, Rented.Bike.Count),
+          quantile(probs = 0.75, Rented.Bike.Count),
+          IQR(Rented.Bike.Count, na.rm = FALSE))
+```
+
+Through these statistics it can be determined that Summer has the greatest average bike rentals and Winter the fewest which is about a fifth of summers rental average- 21.8% (1030.0734 and 225.5412). This is consistent in the median rent also. Standard dev. ...
+This may be correlated with weather factors associated with the seasons that we shall explore later. 
 
 ```{r}
 #Seasons
@@ -46,67 +200,105 @@ bike_data %>%
   theme(legend.position = "bottom")
   
 ```
-Seasons:
+
+Seasons: XXX
 We can see that the graph of rental and seasons shows a right-skewed distribuion. Winter has the lowest number of rental and summer has the highest (too cold for people to go out?) Number of rental are widely spread out in autumn, spring, summer and highly concentrated in winter. (people have same mindset in winter)
 
-```{r}
-bike_data %>%
-  drop_na(Rented.Bike.Count,Holiday) %>%
-  ggplot(aes(x = Holiday, y = Rented.Bike.Count)) +
-  geom_boxplot(color = "blue",
-               fill = "skyblue") +
-  labs(x = "Holiday",
-       y = "Rented Bike Count",
-       title = "Relaionship between Rental and Seasons") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-```
-Holidays:
-It is indicated that rental is lower in holiday than in none. (people travel away from the city so they are not renting?) There are a lot of outliners on no holiday.
+
+**Exploring Further**
+This may be correlated with weather factors associated with the seasons that we shall explore later. 
+
+**Exploring Meteorological Variables**
+
+TEMPERATURE
 
 ```{r}
+
 bike_data %>%
-  drop_na(Rented.Bike.Count, Functioning.Day) %>%
-  ggplot(aes(x = Functioning.Day, fill = Functioning.Day)) +
-  scale_fill_manual(values = c("No" = "salmon",
-                               "Yes" = "skyblue")) +
-  geom_bar() +
-  labs(x = "Functioning Day",
-       y = "Bike Renting Day",
-       title = "Relationship between Rental and Functioning Day") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-```
-
-Functioning Day:
-Yes is much greater than No. 
-
-
-```{r}
-bike_data %>%
-  drop_na(Rented.Bike.Count, Dew.point.temperature.蚓.) %>%
-  ggplot(mapping = aes(x = Dew.point.temperature.蚓., y = Rented.Bike.Count)) +
-  geom_point(color = "#FFB6C1",
-             alpha = 0.5,
-             size = 1) +
+  drop_na(Rented.Bike.Count, Temperature.蚓.) %>%
+  ggplot(mapping = aes(x = Temperature.蚓., y = Rented.Bike.Count)) +
+  geom_point(alpha = 0.5, size = 1, color = "pink") +
   geom_smooth(method = lm, se = FALSE, colour = "steelblue") +
-  labs(x = "Dew Point",
+  labs(x = "Temperature",
        y = "Rented Bike Count",
-       title = "Relationship between Rental and Dew Point") +
-   theme_minimal() +
+       title = "Relationship between Rental and Temperature") +
+  theme_minimal() +
   theme(legend.position = "bottom")
-```
-
 
 ```
 
-Dew Point:
-Rental is higher when dew point is higher. They are widely spread when dew point is high (other factors are influencing?) 
-As there are a lot of zero point exit on unfuntioning day, we should drop them.
-Positive correlation.
+Regressionline
+Temperature:
+Rental is higher between 20-40
+Concentrated in low temperature and Spread away in high temperature(It's not necessary to rent bike in a low temperature, and it depends on other factors in high temperature)
+Positive correlation
+
+
+
+
+
+PRECIPITATION
+
+```{r}
+
+bike_data %>%
+  mutate(precipitation.mm = Rainfall.mm.+Snowfall..cm.*10) %>%
+  filter(Seasons=="Winter") %>%
+  drop_na(Rented.Bike.Count, precipitation.mm) %>%
+  ggplot(mapping = aes(x = precipitation.mm, y = Rented.Bike.Count)) +
+  geom_point(color = "lightblue",
+             alpha = 0.4) +
+  geom_smooth( se = FALSE, method = lm, colour = "black") +
+  labs(x = "precipitation (mm)",
+       y = "Rented Bike Count",
+       title = "Graph of bike rental against precipitation (mm)")
 
 
 ```
+
+rainfall no rainfall logistic regression graph with rent on one axis - number of bike rentals ...
+
+
+
+
+
+```{r}
+bike_data <- bike_data %>%
+  mutate(
+    Precipitation = case_when(
+      Rainfall.mm. > 0 | Snowfall..cm. > 0 ~ "Precipitation",
+      TRUE ~ "No Precipitation"),
+    Precipitation = factor(
+      Precipitation,
+      levels = c("No Precipitation", "Precipitation")))
+
+bike_precipitation_plot <- bike_data %>%
+  ggplot(aes(
+    x = Precipitation,
+    y = Rented.Bike.Count)) +
+  geom_boxplot(
+    color = "blue",
+    fill = "skyblue") +
+  labs(
+    x = "Precipitation",
+    y = "Rented Bike Count",
+    title = "Relationship between Rentals and Precipitation") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom")
+
+bike_precipitation_plot
+```
+
+**Exploring Further**
+Perhaps its exploring the linear relationship between temperature, precipitation and bike rentals
+
+
+
+
+
+DEW POINT
+
 ```{r}
 bike_data %>%
   filter(Functioning.Day == "Yes") %>%
@@ -124,25 +316,17 @@ bike_data %>%
 ```
 
 Actually nothing different, but we will keep the new one.
+Dew Point:
+Rental is higher when dew point is higher. They are widely spread when dew point is high (other factors are influencing?) 
+As there are a lot of zero point exit on unfuntioning day, we should drop them.
+Positive correlation.
+
+**Exploring Further**
 
 
-```{r}
-bike_data %>%
-  drop_na(Rented.Bike.Count, Temperature.蚓.) %>%
-  ggplot(mapping = aes(x = Temperature.蚓., y = Rented.Bike.Count)) +
-  geom_point(alpha = 0.5, size = 1, color = "pink") +
-  geom_smooth(method = lm, se = FALSE, colour = "steelblue") +
-  labs(x = "Temperature",
-       y = "Rented Bike Count",
-       title = "Relationship between Rental and Temperature") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-```
 
-Temperature:
-Rental is higher between 20-40
-Concentrated in low temperature and Spread away in high temperature(It's not necessary to rent bike in a low temperature, and it depends on other factors in high temperature)
-Positive correlation
+
+WIND SPEED:
 
 ```{r}
 bike_data %>%
@@ -156,32 +340,23 @@ bike_data %>%
        title = "Graph of bike rental against wind speed (m/s)")
 
 ```
+
+Interpretation:...
+
+NEED TO LOOK AT
+
+ "Humidity..."                     
+ "Visibility..10m." 
+ "Solar.Radiation..MJ.m2."
+
+
+**Exploring Temporal Variables Part 2**
+
+DAYS
+
 ```{r}
+
 bike_data %>%
-  mutate(precipitation.mm=Rainfall.mm.+Snowfall..cm.*10) %>%
-  filter(Seasons=="Winter") %>%
-  drop_na(Rented.Bike.Count, precipitation.mm) %>%
-  ggplot(mapping = aes(x = precipitation.mm, y = Rented.Bike.Count)) +
-  geom_point(color = "lightblue",
-             alpha = 0.4) +
-  geom_smooth( se = FALSE, method = lm, colour = "black") +
-  labs(x = "precipitation (mm)",
-       y = "Rented Bike Count",
-       title = "Graph of bike rental against precipitation (mm)")
-```
-
-## Date Code
-```{r}
-
-SeoulBikeData <- read.csv("SeoulBikeData.csv")
-names(SeoulBikeData)
-
-```
-
-Days: combining days in a year against rent
-```{r}
-
-SeoulBikeData %>%
   drop_na(Rented.Bike.Count, Date) %>%
   group_by(Date) %>%
   summarise(
@@ -197,10 +372,20 @@ SeoulBikeData %>%
 
 ```
 
-Weekdays: Mean Bike Rentals per Weekday
+Interpretation
+
+
+**Exploring Further**
+
+
+
+
+
+WEEKDAYS
+
 ```{r}
 
-SeoulBikeData %>%
+bike_data %>%
   drop_na(Rented.Bike.Count, Date, Seasons) %>%
   mutate(Day = weekdays(as.Date(Date))) %>%
   group_by(Day, Seasons) %>%
@@ -218,10 +403,19 @@ SeoulBikeData %>%
 
 ```
 
-Hours:  Hours in a day against rent
+Interpretation
+
+
+**Exploring Further**
+
+
+
+
+HOURS
+
 ```{r}
 
-SeoulBikeData %>%
+bike_data %>%
   drop_na(Rented.Bike.Count, Hour) %>%
   group_by(Hour, Seasons) %>%
   summarise(Total_Bikes_Hour = sum(Rented.Bike.Count), .groups = "drop") %>%
@@ -235,12 +429,21 @@ SeoulBikeData %>%
 
 ```
 
-Months: combining months in a year against rent
+Interpretation
+
+
+**Exploring Further**
+
+
+
+
+MONTHS 
+
 ```{r}
 
-SeoulBikeData$Date <- as.Date(SeoulBikeData$Date, format = "%d/%m/%Y")
+bike_data$Date <- as.Date(bike_data$Date, format = "%d/%m/%Y")
 
-SeoulBikeData %>%
+bike_data %>%
   drop_na(Rented.Bike.Count, Date) %>%
   mutate(Month = floor_date(Date, unit = "month")) %>%
   group_by(Month) %>%
@@ -256,4 +459,270 @@ SeoulBikeData %>%
     title = "Mean Bike Rentals by Month")
 
 ```
+
+Interpretation
+
+
+**Exploring Further**
+
+**Further Explorations**
+
+
+RAINFALL + TEMP + RENT
+Predicting the LINEAR REGGRESSION
+
+```{r}
+
+bike_data_rain <- bike_data %>%
+  select(
+    Temperature.蚓.,
+    Rainfall.mm.,
+    Snowfall..cm.,
+    Rented.Bike.Count) %>%
+  drop_na()
+
+bike_data_rain <- bike_data_rain %>%
+  mutate(
+    Precipitation = case_when(
+      Rainfall.mm. > 0 | Snowfall..cm. > 0 ~ "Precipitation",
+      TRUE ~ "No Precipitation"),
+    Precipitation = factor(
+      Precipitation,
+      levels = c("No Precipitation", "Precipitation")))
+
+Bike_data_rain_lm <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Rented.Bike.Count ~ Temperature.蚓.,
+    data = bike_data_rain)
+
+tidy(Bike_data_rain_lm)
+
+bike_data_rain %>%
+  ggplot(aes(
+    x = Temperature.蚓.,
+    y = Rented.Bike.Count)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Bike Rentals Based on Temperature",
+    x = "Temperature",
+    y = "Bike Rentals") +
+  theme_minimal()
+
+glance(Bike_data_rain_lm)
+
+
+Bike_data_rain_lm_engine <- extract_fit_engine(
+  Bike_data_rain_lm)
+
+Bike_data_rain_lm_aug <- augment(
+  Bike_data_rain_lm_engine)
+
+ggplot(
+  Bike_data_rain_lm_aug,
+  aes(x = .fitted, y = .resid)) +
+  geom_point(alpha = 0.4) +
+  geom_hline(yintercept = 0, colour = "red") +
+  labs(
+    title = "Residuals vs Fitted Values",
+    x = "Fitted Values",
+    y = "Residuals") +
+  theme_minimal()
+
+
+bike_data_rain %>%
+  ggplot(aes(
+    x = Temperature.蚓.,
+    y = Rented.Bike.Count,
+    colour = Precipitation)) +
+  geom_point(alpha = 0.3) +
+  labs(
+    title = "Bike Rentals Against Temperature by Precipitation",
+    x = "Temperature",
+    y = "Number of Bike Rentals",
+    colour = "Precipitation") +
+  theme_minimal()
+
+
+Bike_data_rain_lm_interaction <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(
+    Rented.Bike.Count ~ Temperature.蚓. * Precipitation,
+    data = bike_data_rain)
+
+tidy(Bike_data_rain_lm_interaction)
+
+glance(Bike_data_rain_lm_interaction)
+
+```
+
+```{r}
+names(bike_data_rain)
+```
+
+```{r}
+
+library(knitr)
+
+Bike_data_rain <- bike_data %>%
+  select(
+    Temperature.蚓.,
+    Rainfall.mm.,
+    Snowfall..cm.,
+    Rented.Bike.Count) %>%
+  drop_na() %>%
+  mutate(
+    Precipitation = case_when(
+      Rainfall.mm. > 0 | Snowfall..cm. > 0 ~ "Precipitation",
+      TRUE ~ "No Precipitation"),
+    Precipitation = factor(
+      Precipitation,
+      levels = c("No Precipitation", "Precipitation")))
+
+set.seed(1234)
+
+Bike_data_rain_split <- initial_split(Bike_data_rain)
+
+Bike_data_rain_train <- training(Bike_data_rain_split)
+Bike_data_rain_test  <- testing(Bike_data_rain_split)
+
+Bike_data_rain_rec_1 <- recipe(
+  Precipitation ~ Temperature.蚓.,
+  data = Bike_data_rain_train
+)
+
+Bike_data_rain_mod_1 <- logistic_reg() %>%
+  set_engine("glm")
+
+Bike_data_rain_wflow_1 <- workflow() %>%
+  add_model(Bike_data_rain_mod_1) %>%
+  add_recipe(Bike_data_rain_rec_1)
+
+Bike_data_rain_fit_1 <- Bike_data_rain_wflow_1 %>%
+  fit(data = Bike_data_rain_train)
+
+tidy(Bike_data_rain_fit_1)
+
+bike_data_rain_pred_1 <- predict(
+  Bike_data_rain_fit_1,
+  Bike_data_rain_test,
+  type = "prob"
+)
+
+bike_data_rain_pred_1 <- bind_cols(
+  Bike_data_rain_test %>% select(Precipitation),
+  bike_data_rain_pred_1
+)
+
+bike_data_rain_pred_1 <- bind_cols(
+  Bike_data_rain_test %>% select(Rainfall.mm.),
+  bike_data_rain_pred_1
+)
+
+
+bike_data_rain_roc_1 <- bike_data_rain_pred_1 %>%
+  roc_curve(
+    truth = Precipitation,
+    .pred_Precipitation,
+    event_level = "second"
+  )
+
+autoplot(bike_data_rain_roc_1) +
+  labs(
+    title = "ROC Curve - Logistic Regression Model 1",
+    x = "1 - Specificity (False Positive Rate)",
+    y = "Sensitivity (True Positive Rate)"
+  ) +
+  theme_minimal()
+
+```
+  
+
+MODE DATA OF TIMES OF DAY 95% CONFIDENCE INTERVAL THROUGH BOOTSRAPPING - MODE HOURS IN THE MORNING AND AFTERNOON FOR BIKE RENTAL
+
+```{r}
+library(infer)
+daily_modes <- bike_data %>%
+  mutate(
+    Time_Period = if_else(Hour < 12, "AM", "PM")
+  ) %>%
+  group_by(Date, Time_Period) %>%
+  slice_max(
+    order_by = Rented.Bike.Count,
+    n = 1,
+    with_ties = FALSE
+  ) %>%
+  ungroup() %>%
+  select(Date, Time_Period, Mode_Hour = Hour)
+
+daily_modes
+
+set.seed(1234)
+
+bootstrap_means <- daily_modes %>%
+  group_by(Time_Period) %>%
+  summarise(
+    Sample_Means = list(
+      replicate(
+        1500,
+        mean(
+          sample(
+            Mode_Hour,
+            size = n(),
+            replace = TRUE
+          )
+        )
+      )
+    ),
+    .groups = "drop"
+  )
+
+bootstrap_summary <- bootstrap_means %>%
+  rowwise() %>%
+  mutate(
+    Mean_of_Sample_Means = mean(Sample_Means),
+    SD_of_Sample_Means = sd(Sample_Means)
+  ) %>%
+  ungroup()
+
+bootstrap_summary
+
+bootstrap_summary <- bootstrap_summary %>%
+  mutate(
+    Lower_CI = Mean_of_Sample_Means -
+      1.96 * SD_of_Sample_Means,
+
+    Upper_CI = Mean_of_Sample_Means +
+      1.96 * SD_of_Sample_Means
+  )
+
+bootstrap_summary
+
+bootstrap_means %>%
+  unnest(Sample_Means) %>%
+  ggplot(aes(x = Sample_Means)) +
+  geom_histogram(
+    aes(y = after_stat(density)),
+    bins = 30
+  ) +
+  geom_density(linewidth = 1) +
+  facet_wrap(~Time_Period, scales = "free") +
+  labs(
+    title = "Sampling Distribution of Mean Peak Rental Hours",
+    x = "Mean Peak Rental Hour",
+    y = "Density"
+  ) +
+  theme_minimal()
+
+
+```
+
+Interpretation
+
+
+**Exploring Further**
+
+
+
+
 
