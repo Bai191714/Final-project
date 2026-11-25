@@ -225,6 +225,14 @@ bike_data %>%
   theme_minimal() +
   theme(legend.position = "bottom")
 
+Bike_data_temp_lm <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Rented.Bike.Count ~ Temperature.蚓.,
+    data = bike_data)
+
+tidy(Bike_data_temp_lm)
+glance(Bike_data_temp_lm)
+
 ```
 
 Regressionline
@@ -252,7 +260,6 @@ bike_data %>%
   labs(x = "precipitation (mm)",
        y = "Rented Bike Count",
        title = "Graph of bike rental against precipitation (mm)")
-
 
 ```
 
@@ -313,6 +320,14 @@ bike_data %>%
        title = "Relationship between Rental and Dew Point") +
    theme_minimal() +
   theme(legend.position = "bottom")
+
+Bike_data_dew_lm <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Rented.Bike.Count ~ Dew.point.temperature.蚓.,
+    data = bike_data)
+
+tidy(Bike_data_dew_lm)
+glance(Bike_data_dew_lm)
 ```
 
 Actually nothing different, but we will keep the new one.
@@ -337,8 +352,16 @@ bike_data %>%
   geom_smooth( se = FALSE, method = lm, colour = "black") +
   labs(x = "Wind Speed (m/s)",
        y = "Rented Bike Count",
-       title = "Graph of bike rental against wind speed (m/s)")
+       title = "Graph of bike rental against wind speed (m/s)") +
+  theme_minimal()
 
+Bike_data_wind_lm <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Rented.Bike.Count ~ Wind.speed..m.s.,
+    data = bike_data)
+
+tidy(Bike_data_wind_lm)
+glance(Bike_data_wind_lm)
 ```
 
 Interpretation:...
@@ -348,7 +371,73 @@ NEED TO LOOK AT
  "Humidity..."                     
  "Visibility..10m." 
  "Solar.Radiation..MJ.m2."
+HUMIDITY 
 
+```{r}
+bike_data %>%
+  drop_na(Rented.Bike.Count, Humidity...) %>%
+  ggplot(mapping = aes(x = Humidity..., y = Rented.Bike.Count)) +
+  geom_point(color = "lightyellow",
+             alpha = 0.4) +
+  geom_smooth( se = FALSE, method = lm, colour = "black") +
+  labs(x = "Humidity",
+       y = "Rented Bike Count",
+       title = "Graph of bike rental against humidity")+
+  theme_minimal()
+
+Bike_data_hum_lm <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Rented.Bike.Count ~ Humidity...,
+    data = bike_data)
+
+tidy(Bike_data_hum_lm)
+glance(Bike_data_hum_lm)
+```
+
+VISIBILITY
+```{r}
+bike_data %>%
+  drop_na(Rented.Bike.Count, Visibility..10m.) %>%
+  ggplot(mapping = aes(x = Visibility..10m., y = Rented.Bike.Count)) +
+  geom_point(color = "orange",
+             alpha = 0.4) +
+  geom_smooth( se = FALSE, method = lm, colour = "black") +
+  labs(x = "visibility",
+       y = "Rented Bike Count",
+       title = "Graph of bike rental against visibility")+ 
+  theme_minimal()
+
+Bike_data_vis_lm <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Rented.Bike.Count ~ Visibility..10m.,
+    data = bike_data)
+
+tidy(Bike_data_vis_lm)
+glance(Bike_data_vis_lm)
+```
+
+SOLAR RADIATION
+
+```{r}
+bike_data %>%
+  drop_na(Rented.Bike.Count, Solar.Radiation..MJ.m2.) %>%
+  ggplot(mapping = aes(x = Solar.Radiation..MJ.m2., y = Rented.Bike.Count)) +
+  geom_point(color = "yellow",
+             alpha = 0.4) +
+  geom_smooth( se = FALSE, method = lm, colour = "black") +
+  labs(x = "solar radiation",
+       y = "Rented Bike Count",
+       title = "Graph of bike rental against solar radiation")+
+  theme_minimal()
+
+Bike_data_solar_lm <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Rented.Bike.Count ~ Solar.Radiation..MJ.m2.,
+    data = bike_data)
+
+tidy(Bike_data_solar_lm)
+glance(Bike_data_solar_lm)
+```
 
 **Exploring Temporal Variables Part 2**
 
@@ -636,6 +725,94 @@ autoplot(bike_data_rain_roc_1) +
   theme_minimal()
 
 ```
+  
+  
+LINEAT REG TEMP + RAIN
+
+```{r}
+
+bike_data_rain <- bike_data %>%
+  select(
+    Temperature.蚓.,
+    Rainfall.mm.,
+    Snowfall..cm.,
+    Rented.Bike.Count) %>%
+  drop_na()
+
+bike_data_rain <- bike_data_rain %>%
+  mutate(
+    Precipitation = case_when(
+      Rainfall.mm. > 0 | Snowfall..cm. > 0 ~ "Precipitation",
+      TRUE ~ "No Precipitation"),
+    Precipitation = factor(
+      Precipitation,
+      levels = c("No Precipitation", "Precipitation")))
+
+Bike_data_temp_lm <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Rented.Bike.Count ~ Temperature.蚓.,
+    data = bike_data_rain)
+
+bike_data_rain %>%
+  ggplot(aes(
+    x = Temperature.蚓.,
+    y = Rented.Bike.Count)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Bike Rentals Based on Temperature",
+    x = "Temperature",
+    y = "Bike Rentals") +
+  theme_minimal()
+
+tidy(Bike_data_temp_lm)
+glance(Bike_data_temp_lm)
+
+Bike_data_rain_lm <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Rented.Bike.Count ~ Precipitation,
+    data = bike_data_rain)
+
+tidy(Bike_data_rain_lm)
+glance(Bike_data_rain_lm)
+
+Bike_data_combined_lm <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Rented.Bike.Count ~ Precipitation + Temperature.蚓.,
+    data = bike_data_rain)
+
+tidy(Bike_data_combined_lm)
+glance(Bike_data_combined_lm)
+
+```
+
+```{r}
+
+bike_data_rain %>%
+  ggplot(aes(
+    x = Temperature.蚓.,
+    y = Rented.Bike.Count,
+    colour = Precipitation)) +
+  geom_point(alpha = 0.3) +
+  labs(
+    title = "Bike Rentals Against Temperature by Precipitation",
+    x = "Temperature",
+    y = "Number of Bike Rentals",
+    colour = "Precipitation") +
+  theme_minimal()
+
+Bike_data_rain_lm_interaction <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(
+    Rented.Bike.Count ~ Temperature.蚓. * Precipitation,
+    data = bike_data_rain)
+
+tidy(Bike_data_rain_lm_interaction)
+glance(Bike_data_rain_lm_interaction)
+
+```
+
+
   
 
 MODE DATA OF TIMES OF DAY 95% CONFIDENCE INTERVAL THROUGH BOOTSRAPPING - MODE HOURS IN THE MORNING AND AFTERNOON FOR BIKE RENTAL
