@@ -894,6 +894,32 @@ bootstrap_means %>%
 
 ```
 
+```{r}
+max_hours <- bike_data %>%
+  group_by(Date) %>%
+  filter( 6<=Hour & Hour<=11) %>%
+  filter(Rented.Bike.Count == max(Rented.Bike.Count))
+
+library(infer)
+boot_hours <- max_hours %>%
+  specify(response=Hour) %>%
+  generate(reps=5000, type ="bootstrap") %>%
+  calculate(stat="mean")
+
+ggplot(data = boot_hours, mapping = aes(x = stat)) +
+  geom_histogram(binwidth = 0.025) +
+  labs(title = "Bootstrap distribution of means")
+
+boot_hours %>%
+  summarize(lower = quantile(stat, 0.025),
+            upper = quantile(stat, 0.975))
+
+  
+#we are 95% confident that the mean time to travel to work is between 8.73 hours and 9.02 hours  
+```
+
+
+
 Interpretation
 
 
