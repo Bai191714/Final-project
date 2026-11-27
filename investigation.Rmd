@@ -859,6 +859,10 @@ boot_hours %>%
   
 #we are 95% confident that the mean time to travel back from work is between 16.83 hours and 17.13 hours  
 ```
+
+
+
+
 ```{r}
 bike_data%>%
   drop_na(Humidity...,Visibility..10m.)%>%
