@@ -940,6 +940,38 @@ boot_hours %>%
   
 #we are 95% confident that the mean time to travel back from work is between 16.83 hours and 17.13 hours  
 ```
+```{r}
+bike_data%>%
+  drop_na(Humidity...,Visibility..10m.)%>%
+  ggplot(
+    mapping = aes(
+      x=Humidity...,
+      y=Rented.Bike.Count,
+      colour = Seasons
+    )
+  )+
+  geom_point(alpha = 0.45)+
+  geom_smooth(method=lm,se=FALSE)+
+  scale_color_manual(values = c("Autumn"="#CC4C02","Spring"="#41AB5D","Summer"="#FEC44F","Winter"="#D9D9D9"))+
+  theme_bw()
+```
+```
+
+```{r}
+bike_data%>%
+  drop_na(Rented.Bike.Count,Visibility..10m.)%>%
+  ggplot(
+    mapping = aes(
+      x=Visibility..10m.,
+      y=Rented.Bike.Count,
+      colour = Seasons
+    )
+  )+
+  geom_point(alpha = 0.45)+
+  geom_smooth(method=lm,se=FALSE)+
+  scale_color_manual(values = c("Autumn"="#CC4C02","Spring"="#41AB5D","Summer"="#FEC44F","Winter"="#D9D9D9"))+
+  theme_bw()
+```
 
 
 
