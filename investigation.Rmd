@@ -878,7 +878,7 @@ bike_data%>%
   scale_color_manual(values = c("Autumn"="#CC4C02","Spring"="#41AB5D","Summer"="#FEC44F","Winter"="#D9D9D9"))+
   theme_bw()
 ```
-```
+
 
 ```{r}
 bike_data%>%
